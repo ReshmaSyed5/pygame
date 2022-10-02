@@ -1,0 +1,142 @@
+import math
+import random
+import pygame
+from pygame import mixer
+pygame.init()
+screen=pygame.display.set_mode((800,600))
+background=pygame.image.load('background.png')
+mixer.music.load("background.wav")
+mixer.music.play(-1)
+pygame.display.set_caption("Wolf Hunter")
+icon=pygame.image.load('ufo.png')
+pygame.display.set_icon(icon)
+hunterImg=pygame.image.load('player.png')
+hunterX=370
+hunterY=480
+hunterX_change=0
+wolfImg=pygame.image.load('enemy.png')
+wolfX=370
+wolfY=480
+wolfX=random.randint(0,736)
+wolfY=random.randint(50,150)
+wolfX_change=0.3
+wolfY_change=40
+wolfImg=[]
+wolfX=[]
+wolfY=[]
+wolfX_change=[]
+wolfY_change=[]
+num_of_wolves=6
+duckImg=pygame.image.load('enemy.png')
+duckX=370
+duckY=480
+duckX=random.randint(0,736)
+duckY=random.randint(50,150)
+duckX_change=0.2
+duckY_change=39
+duckImg=[]
+duckX=[]
+duckY=[]
+duckX_change=[]
+duckY_change=[]
+num_of_ducks=6
+for i in range(num_of_enemies):
+    wolfImg.append(pygame.image.load('enemy.png'))
+    wolfX.append(random.randint(0,736))
+    wolfY.append(random.randint(50,150))
+    wolfX_change.append(4)
+    wolfY_change.append(40)
+bulletImg=pygame.image.load('bullet.png')
+bulletX=0
+bulletY=480
+bulletX_change=0
+bulletY_change=10
+bullet_state="ready"
+score_value=0
+font=pygame.font.Font('freesansbold.ttf',32)
+testX=10
+testY=10
+over_font=pygame.font.Font('freesansbold.ttf',64)
+def show_score(x,y):
+    score=font.render("Score: "+str(score_value),True,(255,255,255))
+    screen.blit(score(x,y))
+def game_over_text():
+    over_text=over_font.render("GAME OVER",True,(255,255,255))
+    screen.blit(over_text(200,250))
+def hunter(x,y):
+    screen.blit(hunterImg(x,y))
+def wolf(x,y):
+    screen.blit(wolfImg[i],(x,y))
+def fire_bullet(x,y):
+    global bullet_state
+    bullet_state="fire"
+    screen.blit(bulletImg,(x+16,y+10))
+def isCollision(wolfX,wolfY,bulletX,bulletY):
+    distance=math.sqrt(math.pow(wolfX-bulletX,2)+math.pow(enemyY-bulletY,2))
+    if distance<27:
+         return True
+    else:
+         return False
+running=True
+while running:
+    screen.fill((0,0,0))
+    screen.blit(background,(0,0))
+    for event in pygame.event.get():
+         if event.type==pygame.QUIT:
+                running=False
+         if event.type==pygame.KEYDOWN:
+              if event.key==pygame.K_LEFT:
+                   hunterX_change=-5
+              if event.key==pygame.K_RIGHT:
+                   hunterX_change=5
+              if event.key==pygame.K_SPACE:
+                    if bullet_state is "ready":
+                           bulletSound=mixer.Sound("laser.wav")
+                           bulletSound.play()
+                           bulletX=hunterX
+                           fire_bullet(bulletX,bulletY)
+              if  event.type==pygame.KEYUP:
+                    if event.key==pygame.K_LEFT or event.key==pygame.K_RIGHT:
+                           hunterX_change=0
+hunterX+=hunterX_change
+if hunterX<=0:
+     hunterX=0
+elif hunterX>=736:
+     hunterX=736
+for i in  range(num_of_wolves):
+     if wolfY[i]>440:
+          for j in range(num_of_wolves):
+                 wolfY[j]=2000
+          game_over_text()
+          break
+     wolfX[i]+=wolfX_change[i]
+     if  wolfX[i]<=0:
+          wolfX_change[i]=4
+          wolfY[i]+=wolfY_change[i]
+     elif wolfX[i]>=736:
+          wolfX_change[i]=-4
+          wolfY[i]+=wolfY_change[i]
+collision=isCollision(wolfX[i],wolfY[i],bulletX,bulletY)
+if collision:
+      explosionSound=mixer.Sound("explosion.wav")
+      explosionSound.play()
+      bulletY=480
+      bullet_state="ready"
+      score_value+=1
+      wolfX[i]=random.randint(0,736)
+      wolfY[i]=random.randint(50,150)
+      wolf(wolfX[i],wolfY[i],i)
+if bulletY<=0:
+      bulletY=480
+      bullet_state="ready"
+if bullet_state is "fire":
+      fire_bullet(bulletX,bulletY)
+      bulletY-=bulletY_change
+      hunter(hunterX,hunterY)
+      show_score(testX,testY)
+      pygame.display.update()
+
+
+               
+
+
